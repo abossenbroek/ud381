@@ -17,7 +17,7 @@
  */
 package udacity.storm;
 
-import backtype.storm.tuple.Tuple;
+import org.apache.storm.tuple.Tuple;
 import org.apache.log4j.Logger;
 //import storm.starter.tools.Rankable;
 //import storm.starter.tools.RankableObjectWithFields;
