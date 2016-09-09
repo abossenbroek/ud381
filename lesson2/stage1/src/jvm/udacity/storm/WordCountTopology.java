@@ -1,25 +1,25 @@
 package udacity.storm;
 
-import backtype.storm.Config;
-import backtype.storm.LocalCluster;
-import backtype.storm.StormSubmitter;
-import backtype.storm.task.ShellBolt;
-import backtype.storm.topology.IRichBolt;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.topology.base.BaseBasicBolt;
-import backtype.storm.topology.base.BaseRichBolt;
-import backtype.storm.topology.base.BaseRichSpout;
-import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
+import org.apache.storm.Config;
+import org.apache.storm.LocalCluster;
+import org.apache.storm.StormSubmitter;
+import org.apache.storm.task.ShellBolt;
+import org.apache.storm.topology.IRichBolt;
+import org.apache.storm.topology.OutputFieldsDeclarer;
+import org.apache.storm.topology.TopologyBuilder;
+import org.apache.storm.topology.base.BaseBasicBolt;
+import org.apache.storm.topology.base.BaseRichBolt;
+import org.apache.storm.topology.base.BaseRichSpout;
+import org.apache.storm.tuple.Fields;
+import org.apache.storm.tuple.Tuple;
+import org.apache.storm.tuple.Values;
 
-import backtype.storm.utils.Utils;
+import org.apache.storm.utils.Utils;
 
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.BasicOutputCollector;
-import backtype.storm.spout.SpoutOutputCollector;
-import backtype.storm.task.OutputCollector;
+import org.apache.storm.task.TopologyContext;
+import org.apache.storm.topology.BasicOutputCollector;
+import org.apache.storm.spout.SpoutOutputCollector;
+import org.apache.storm.task.OutputCollector;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -129,15 +129,22 @@ public class WordCountTopology {
       //Check if incoming word is in countMap.  If word does not
       //exist then add word with count = 1, if word exist then
       //increment count.
+      String word = tuple.getStringByField("word");
+      Integer wordCount = countMap.get(word);
 
-      //Syntax to get the word from the 1st column of incoming tuple
-      //String word = tuple.getString(0);
-
+      // Verify whether the word is found.
+      if (wordCount != null) {
+        // It is found so raise the number by one.
+        countMap.put(word, wordCount + 1);
+      } else {
+        // Word is not found, so initiate the key to one.
+        countMap.put(word, 1);
+      }
 
 
       //After countMap is updated, emit word and count to output collector
       // Syntax to emit the word and count (uncomment to emit)
-      //collector.emit(new Values(word, countMap.get(word)));
+      collector.emit(new Values(word, countMap.get(word)));
 
       //END YOUR CODE Part 1-of-3
       //***************************************************
@@ -155,7 +162,7 @@ public class WordCountTopology {
       //BEGIN YOUR CODE - Part 2-of-3
       //uncomment line below to declare output
 
-      //outputFieldsDeclarer.declare(new Fields("word","count"));
+      outputFieldsDeclarer.declare(new Fields("word","count"));
 
       //END YOUR CODE - Part 2-of-3
       //****************************************************
@@ -217,6 +224,7 @@ public class WordCountTopology {
     //***************************************************
     // BEGIN YOUR CODE - Part 3-of-3
 
+    builder.setBolt("report-bolt", new ReportBolt(), 1).globalGrouping("count-bolt");
 
 
     // END YOUR CODE - Part 3-of-3

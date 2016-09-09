@@ -1,18 +1,18 @@
 package udacity.storm;
 
-import backtype.storm.Config;
-import backtype.storm.LocalCluster;
-import backtype.storm.StormSubmitter;
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.testing.TestWordSpout;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.topology.base.BaseRichBolt;
-import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
-import backtype.storm.utils.Utils;
+import org.apache.storm.Config;
+import org.apache.storm.LocalCluster;
+import org.apache.storm.StormSubmitter;
+import org.apache.storm.task.OutputCollector;
+import org.apache.storm.task.TopologyContext;
+import org.apache.storm.testing.TestWordSpout;
+import org.apache.storm.topology.OutputFieldsDeclarer;
+import org.apache.storm.topology.TopologyBuilder;
+import org.apache.storm.topology.base.BaseRichBolt;
+import org.apache.storm.tuple.Fields;
+import org.apache.storm.tuple.Tuple;
+import org.apache.storm.tuple.Values;
+import org.apache.storm.utils.Utils;
 
 import java.util.Map;
 
@@ -20,17 +20,9 @@ import java.util.Map;
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisConnection;
 
-// COPY AND PASE: following code into pom.xml file (located lesson1/stage1/pom.xml)
-//<dependency>
-//  <groupId>com.lambdaworks</groupId>
-//  <artifactId>lettuce</artifactId>
-//  <version>2.3.3</version>
-//</dependency>
-//
-//********* END 1-of-4
-
 //********* BEGIN stage2 exercise part 1-of-2 ***********
 //import the random sentence spout from spout/RandomSentenceSpout (remember the semicolon!)
+import udacity.storm.spout.RandomSentenceSpout;
 
 //********** END stage 2 exercise part 1-of-2 ***********
 
@@ -117,13 +109,14 @@ public class ReporterExclamationTopology {
 
     //********* BEGIN stage2 exercise part 2-of-2 ***********
     // attach the word spout to the topology - parallelism of 10
-    builder.setSpout("word", new TestWordSpout(), 10);
+    builder.setSpout("rand-sentence", new RandomSentenceSpout(), 10);
 
     // attach the exclamation bolt to the topology - parallelism of 3
-    builder.setBolt("exclaim1", new ExclamationBolt(), 3).shuffleGrouping("word");
+    builder.setBolt("exclaim1", new ExclamationBolt(), 3).shuffleGrouping("rand-sentence");
 
     // attach another exclamation bolt to the topology - parallelism of 2
-    builder.setBolt("exclaim2", new ExclamationBolt(), 2).shuffleGrouping("exclaim1");
+    builder.setBolt("exclaim2", new ExclamationBolt(), 3).shuffleGrouping("rand-sentence");
+
 
     //********* END stage2 exercise part 2-of-2 ***********
 
